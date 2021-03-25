@@ -154,7 +154,8 @@ function cellClicked(ev, elSpanCell, i, j) {
         gGame.IsOn = true
         setTimer()
     }
-    if (gLevel.MINES === gGame.markedCount && gGame.minesCount === 0) {
+    if ((gLevel.MINES === gGame.markedCount && gGame.minesCount === 0)
+        || gGame.lives > 0 && gGame.minesCount === 0) {
         isVictory();
     }
     var elSpanCell = document.getElementById(`span-cell-${i}-${j}`);
