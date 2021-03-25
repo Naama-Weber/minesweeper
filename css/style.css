@@ -9,17 +9,20 @@ h1 {
   font-size: 50px;
 }
 .board td {
-  width: 300px;
-  height: 50px;
+  width: 35px;
+  height: 35px;
   text-align: center;
   border: 1px solid black;
   background-color: white;
 }
 table {
   margin-bottom: 30px;
+  margin: 0 auto;
 }
 button {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  background-color: rgb(141, 29, 98);
+  color: white;
 }
 
 .hiddenSymbol {
@@ -29,11 +32,18 @@ button {
 .timer-container {
   font-size: 24px;
   margin-bottom: 20px;
+  margin-left: 20px;
+  display: inline-block;
 }
 
 .modal {
   font-size: 40px;
   color: red;
+}
+
+.victoryModal {
+  font-size: 40px;
+  color: blue;
 }
 
 .hiddenModal {
@@ -43,4 +53,15 @@ button {
 .smiley {
   font-size: 22px;
   margin-top: 20px;
+}
+
+.lives {
+  font-size: 24px;
+  padding-right: 14px;
+  padding-bottom: 20px;
+}
+
+.livesSpan {
+  font-size: 24px;
+  padding: 10px
 }

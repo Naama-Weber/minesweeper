@@ -21,10 +21,14 @@
     <button onclick="changeLevel(8)">Medium (8X8)</button>
     <button onclick="changeLevel(12)">Hard (12X12)</button>
 
-    <div class="timer-container">
+    <div style="display: block">
+        <button class="smiley" onclick="initGame()"></button>
+        <div class="timer-container">
         Timer:
         <span> <label id="minutes">00</label>:<label id="seconds">00</label></span>
+        </div>
     </div>
+    <div class="lives">Lives:<span class="livesSpan"></span></div>
 
     <table>
         <tbody class="board">
@@ -32,9 +36,10 @@
         </tbody>
     </table>
 
-    <div><span class = "modal hiddenModal">GAME OVER</span></div>
+    <div><span class="modal hiddenModal">GAME OVER</span></div>
+    <div><span class="victoryModal hiddenModal">VICTORY!</span></div>
 
-    <div><button class="smiley" onclick="initGame()"></button></div>
+
 
     <script src="js/utils.js"></script>
     <script src="js/game.js"></script>

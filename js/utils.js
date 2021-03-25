@@ -1,3 +1,6 @@
+var gTimer;
+
+
 function createMat(ROWS, COLS) {
     var mat = []
     for (var i = 0; i < ROWS; i++) {
@@ -9,6 +12,7 @@ function createMat(ROWS, COLS) {
     }
     return mat
 }
+
 
 
 // counts mines around cells and sets the cell's minesAroundCount
@@ -26,6 +30,8 @@ function setMinesNegsCount(board, rowIdx, colIdx) {
     return minesAroundCount
 
 }
+
+
 
 function getCellCoord(strCellId) {
     var coord = {};
@@ -51,12 +57,12 @@ function getRandomCell() {
     return randCell;
 }
 
+// Timer
 function setTimer() {
     var minutesLabel = document.getElementById("minutes");
     var secondsLabel = document.getElementById("seconds");
     var totalSeconds = 0;
-    setInterval(setTime, 1000);
-
+    gTimer = setInterval(setTime, 1000);
     function setTime() {
         ++totalSeconds;
         secondsLabel.innerHTML = pad(totalSeconds % 60);
@@ -73,6 +79,6 @@ function setTimer() {
     }
 }
 
-function stopTimer(){
-    
+function stopTimer() {
+    clearInterval(gTimer);
 }

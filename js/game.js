@@ -2,6 +2,13 @@
 
 const MINE = '💣';
 const FLAG = '🚩';
+const GAME_ON = '😃'
+const GAME_OVER = '😭'
+const VICTORY = '😎'
+
+var isFirstClick = true;
+var fitstI;
+var fitstJ;
 
 var gLevel = {
     SIZE: 4,
@@ -12,22 +19,29 @@ var gGame = {
     isOn: false,
     shownCount: 0,
     markedCount: 0,
-    lives: 3
+    minesCount: gLevel.MINES,
+    lives: 2
     // secsPassed: 0
 }
-
+var gTimer;
 var gBoard;
+
+// starts the game
 function initGame() {
+    var elModal = document.querySelector('.modal');
+    elModal.classList.add('hiddenModal');
+    var elVicModal = document.querySelector('.victoryModal');
+    elVicModal.classList.add('hiddenModal');
     gBoard = buildBoard();
     renderBoard(gBoard);
     gGame.isOn = true;
     gGame.markedCount = 0;
-    //     console.log('gBoard ', gBoard)
-    // var randMineCell1 = putRandMine();
-    // console.log('randMineCell1 ', randMineCell1)
-    // setSmiley();
+    gGame.lives = 2
+    var elLives = document.querySelector('.livesSpan')
+    elLives.innerText = gGame.lives
 }
 
+// changes the level 4/8/12
 function changeLevel(level) {
     gLevel.SIZE = level;
     if (level === 4) gLevel.MINES = 2;
@@ -36,12 +50,13 @@ function changeLevel(level) {
     initGame(level)
 }
 
+// builds mat
 function buildBoard() {
     var board = createMat(gLevel.SIZE, gLevel.SIZE);
     for (var i = 0; i < board.length; i++) {
         for (var j = 0; j < board[0].length; j++) {
             board[i][j] = {
-                minesAroundCount: 0,
+                negsCount: 0,
                 isShown: false,
                 isMine: false,
                 isMarked: false
@@ -55,21 +70,19 @@ function buildBoard() {
     return board;
 }
 
-
+// renders mat
 function renderBoard(board) {
     var strHTML = '';
     for (var i = 0; i < board.length; i++) {
         strHTML += `<tr>\n`;
         for (var j = 0; j < board[0].length; j++) {
-            // var randMineCell1 = putRandMine();
-            // console.log('randMineCell1 ', randMineCell1)
-            var negsCount = setMinesNegsCount(gBoard, i, j);
+            gBoard[i][j].negsCount = setMinesNegsCount(gBoard, i, j);
             var strIdx = `cell-${i}-${j}`;
             var coord = getCellCoord(strIdx)
             if (board[coord.i][coord.j].isMine) {
-                strHTML += `\t<td id = "${strIdx}" onclick = "cellClicked(this, ${i}, ${j})"><span id = "span-${strIdx}"  class = "hiddenSymbol">${MINE}</span>\n`;
+                strHTML += `\t<td id = "${strIdx}" onclick = "cellClicked(event, this, ${i}, ${j})" oncontextmenu="cellRightClick(event, ${i}, ${j})" ><span id = "span-${strIdx}"  class = "hiddenSymbol">${MINE}</span>\n`;
             } else {
-                strHTML += `\t<td id = "${strIdx}" onclick = "cellClicked(this, ${i}, ${j})"><span id = "span-${strIdx}" class = "hiddenSymbol">${negsCount}</span>\n`;
+                strHTML += `\t<td id = "${strIdx}" onclick = "cellClicked(event, this, ${i}, ${j})" oncontextmenu="cellRightClick(event, ${i}, ${j})" ><span id = "span-${strIdx}" class = "hiddenSymbol">${gBoard[i][j].negsCount}</span>\n`;
             }
             strHTML += `\t</td>\n`;
         }
@@ -80,9 +93,34 @@ function renderBoard(board) {
     setSmiley();
 }
 
-
-
-
+function cellRightClick(event, i, j) {
+    event.preventDefault(); // stopps annoying popup when clicking right 
+    if (gBoard[i][j].isShown) {
+        return
+    }
+    if (gBoard[i][j].isMarked === false) {
+        gBoard[i][j].isMarked = true;
+        if (gBoard[i][j].isMine) {
+            gGame.minesCount--
+            console.log('gGame.minesCount ', gGame.minesCount)
+        }
+        var elSpanCell = document.getElementById(`span-cell-${i}-${j}`);
+        elSpanCell.innerText = FLAG;
+        gGame.markedCount++
+        elSpanCell.classList.remove('hiddenSymbol');
+    } else {
+        gBoard[i][j].isMarked = false;
+        var elSpanCell = document.getElementById(`span-cell-${i}-${j}`);
+        elSpanCell.classList.add('hiddenSymbol');
+        if (gBoard[i][j].isMine) {
+            elSpanCell.innerText = MINE;
+        }
+        else {
+            elSpanCell.innerText = gBoard[i][j].negsCount;
+            gGame.markedCount--
+        }
+    }
+}
 
 // counts mines around cells and sets the cell's minesAroundCount
 function setMinesNegsCount(board, rowIdx, colIdx) {
@@ -95,28 +133,41 @@ function setMinesNegsCount(board, rowIdx, colIdx) {
             var cell = board[i][j].isMine;
             if (cell) minesAroundCount++
         }
-    }
-    return minesAroundCount
+    } return minesAroundCount
 }
 
-function cellClicked(elSpanCell, i, j) {
+function cellClicked(ev, elSpanCell, i, j) {
+    if (isFirstClick && gBoard[i][j].isMine) {
+        isFirstClick = false
+        fitstI = i;
+        fitstJ = j;
+        initGame()
+        return
+    }
+    isFirstClick = false
+
+    if (gBoard[i][j].isMarked) {
+        return
+    }
     gBoard[i][j].isShown = true;
-    gBoard[i][j].isMarked = true;
     if (!gGame.IsOn) {
         gGame.IsOn = true
-        setTimer();
+        setTimer()
+    }
+    if (gLevel.MINES === gGame.markedCount && gGame.minesCount === 0) {
+        isVictory();
     }
     var elSpanCell = document.getElementById(`span-cell-${i}-${j}`);
     elSpanCell.classList.remove('hiddenSymbol');
-
-    console.log(gBoard[i][j].isMine)
-    if (gBoard[i][j].isMine) {
-
-        var gameOver = checkGameOver();
-        console.log('gameOver ', gameOver)
-        var smiley = document.querySelector('.smiley');
-        smiley.innerText = '😭'
+    if (gBoard[i][j].isMine){
+        gGame.lives--
+        console.log('gGame.lives ', gGame.lives)
+        var elLives = document.querySelector('.livesSpan');
+        elLives.innerText = gGame.lives;
     }
+    if (gGame.lives === 0) {
+            checkGameOver();
+        }
 }
 
 
@@ -124,7 +175,7 @@ function putRandMine(board) {
     var randomI = getRandomInt(0, board.length);
     var randomJ = getRandomInt(0, board[0].length);
     var randMineCell = board[randomI][randomJ];
-    while (randMineCell.isMine) {
+    while (randMineCell.isMine && randomI !== fitstI && randomJ !== fitstJ) {
         randomI = getRandomInt(0, board.length);
         randomJ = getRandomInt(0, board[0].length);
         randMineCell = board[randomI][randomJ];
@@ -150,31 +201,30 @@ function getCellCoord(strCellId) {
 
 
 
-// Called on right click to mark a cell (suspected to be a mine)
-// Search the web (and implement) how to hide the context menu on right click 
-function cellMarked(elCell) {
-    
-}
-
-
-
 // Game ends when all mines are marked, and all the other cells are shown
 function checkGameOver() {
     for (var i = 0; i < gBoard.length; i++) {
         for (var j = 0; j < gBoard[0].length; j++) {
             if (gBoard[i][j].isMine && gBoard[i][j].isShown) {
-                // console.log('game over')
-                setSmiley()
                 var elModal = document.querySelector('.modal')
-                console.log(elModal)
                 elModal.classList.remove('hiddenModal')
-                // clearInterval(setTime);
-
+                stopTimer();
+                var smiley = document.querySelector('.smiley');
+                smiley.innerText = GAME_OVER;
                 return true;
             }
         }
     } return false;
 }
+
+function isVictory() {
+    var elVicModal = document.querySelector('.victoryModal')
+    elVicModal.classList.remove('hiddenModal')
+    stopTimer();
+    var smiley = document.querySelector('.smiley');
+    smiley.innerText = VICTORY;
+}
+
 
 
 // when user clicks a cell with no mines around - opens not only that cell,
@@ -185,10 +235,6 @@ function expandShown(board, elCell, i, j) {
 
 function setSmiley() {
     var smiley = document.querySelector('.smiley');
-    smiley.innerText = '😀';
-    // if () {
-    //     gGame.isOn = false;
-    //     smiley.innerText = '😭'
-    // }
+    smiley.innerText = GAME_ON;
 }
 
