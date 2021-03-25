@@ -82,3 +82,11 @@ function setTimer() {
 function stopTimer() {
     clearInterval(gTimer);
 }
+
+function resetTimer() {
+    clearInterval(gTimer);
+    var minutesLabel = document.getElementById("minutes");
+    var secondsLabel = document.getElementById("seconds");
+    secondsLabel.innerHTML = "00";
+    minutesLabel.innerHTML = "00";
+}

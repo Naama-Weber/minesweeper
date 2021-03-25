@@ -7,8 +7,8 @@ const GAME_OVER = '😭'
 const VICTORY = '😎'
 
 var isFirstClick = true;
-var fitstI;
-var fitstJ;
+var fitstI = null;
+var fitstJ = null;
 
 var gLevel = {
     SIZE: 4,
@@ -19,7 +19,7 @@ var gGame = {
     isOn: false,
     shownCount: 0,
     markedCount: 0,
-    minesCount: gLevel.MINES,
+    negsCount: 0,
     lives: 2
     // secsPassed: 0
 }
@@ -34,11 +34,19 @@ function initGame() {
     elVicModal.classList.add('hiddenModal');
     gBoard = buildBoard();
     renderBoard(gBoard);
-    gGame.isOn = true;
+    gGame.isOn = false;
     gGame.markedCount = 0;
     gGame.lives = 2
     var elLives = document.querySelector('.livesSpan')
     elLives.innerText = gGame.lives
+    resetTimer()
+
+    if (fitstI !== null && fitstJ !== null){
+        cellClicked(fitstI, fitstJ)
+        fitstI = null;
+        fitstJ = null;
+        isFirstClick = true
+    }
 }
 
 // changes the level 4/8/12
@@ -80,9 +88,9 @@ function renderBoard(board) {
             var strIdx = `cell-${i}-${j}`;
             var coord = getCellCoord(strIdx)
             if (board[coord.i][coord.j].isMine) {
-                strHTML += `\t<td id = "${strIdx}" onclick = "cellClicked(event, this, ${i}, ${j})" oncontextmenu="cellRightClick(event, ${i}, ${j})" ><span id = "span-${strIdx}"  class = "hiddenSymbol">${MINE}</span>\n`;
+                strHTML += `\t<td id = "${strIdx}" onclick = "cellClicked( ${i}, ${j})" oncontextmenu="cellRightClick(event, ${i}, ${j})" ><span id = "span-${strIdx}"  class = "hiddenSymbol">${MINE}</span>\n`;
             } else {
-                strHTML += `\t<td id = "${strIdx}" onclick = "cellClicked(event, this, ${i}, ${j})" oncontextmenu="cellRightClick(event, ${i}, ${j})" ><span id = "span-${strIdx}" class = "hiddenSymbol">${gBoard[i][j].negsCount}</span>\n`;
+                strHTML += `\t<td id = "${strIdx}" onclick = "cellClicked( ${i}, ${j})" oncontextmenu="cellRightClick(event, ${i}, ${j})" ><span id = "span-${strIdx}" class = "hiddenSymbol">${gBoard[i][j].negsCount}</span>\n`;
             }
             strHTML += `\t</td>\n`;
         }
@@ -100,10 +108,6 @@ function cellRightClick(event, i, j) {
     }
     if (gBoard[i][j].isMarked === false) {
         gBoard[i][j].isMarked = true;
-        if (gBoard[i][j].isMine) {
-            gGame.minesCount--
-            console.log('gGame.minesCount ', gGame.minesCount)
-        }
         var elSpanCell = document.getElementById(`span-cell-${i}-${j}`);
         elSpanCell.innerText = FLAG;
         gGame.markedCount++
@@ -136,7 +140,10 @@ function setMinesNegsCount(board, rowIdx, colIdx) {
     } return minesAroundCount
 }
 
-function cellClicked(ev, elSpanCell, i, j) {
+function cellClicked( i, j) {
+    if (gGame.lives === 0){
+        return
+    }
     if (isFirstClick && gBoard[i][j].isMine) {
         isFirstClick = false
         fitstI = i;
@@ -149,26 +156,34 @@ function cellClicked(ev, elSpanCell, i, j) {
     if (gBoard[i][j].isMarked) {
         return
     }
-    gBoard[i][j].isShown = true;
-    if (!gGame.IsOn) {
-        gGame.IsOn = true
-        setTimer()
+
+    if(!gBoard[i][j].isMine && !gBoard[i][j].isShown ){
+        gGame.negsCount++
     }
-    if ((gLevel.MINES === gGame.markedCount && gGame.minesCount === 0)
-        || gGame.lives > 0 && gGame.minesCount === 0) {
-        isVictory();
-    }
+
     var elSpanCell = document.getElementById(`span-cell-${i}-${j}`);
     elSpanCell.classList.remove('hiddenSymbol');
-    if (gBoard[i][j].isMine){
+    if (gBoard[i][j].isMine) {
         gGame.lives--
         console.log('gGame.lives ', gGame.lives)
         var elLives = document.querySelector('.livesSpan');
         elLives.innerText = gGame.lives;
     }
+    gBoard[i][j].isShown = true;
+    if (!gGame.isOn) {
+        gGame.isOn = true
+        setTimer()
+    }
+    
+    var totalNegsCount = (gLevel.SIZE ** 2) - gLevel.MINES;
+    console.log('negsCount ', totalNegsCount)
+    if (totalNegsCount === gGame.negsCount){
+        isVictory();
+    }
+    
     if (gGame.lives === 0) {
-            checkGameOver();
-        }
+        checkGameOver();
+    }
 }
 
 
