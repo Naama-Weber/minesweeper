@@ -169,16 +169,15 @@ function cellClicked( i, j) {
         var elLives = document.querySelector('.livesSpan');
         elLives.innerText = gGame.lives;
     }
-    gBoard[i][j].isShown = true;
-    if (!gGame.isOn) {
-        gGame.isOn = true
-        setTimer()
-    }
-    
     var totalNegsCount = (gLevel.SIZE ** 2) - gLevel.MINES;
     console.log('negsCount ', totalNegsCount)
     if (totalNegsCount === gGame.negsCount){
         isVictory();
+    }
+    gBoard[i][j].isShown = true;
+    if (!gGame.isOn) {
+        gGame.isOn = true
+        setTimer()
     }
     
     if (gGame.lives === 0) {
