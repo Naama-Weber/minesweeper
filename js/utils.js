@@ -28,9 +28,23 @@ function setMinesNegsCount(board, rowIdx, colIdx) {
         }
     }
     return minesAroundCount
-
 }
 
+// function checkZerosNegs(gBoard, cellI, cellJ) {
+//     for (var i = cellI - 1; i <= cellI + 1; i++) {
+//         if (i < 0 || i > gBoard.length - 1) continue
+//         for (var j = cellJ - 1; j <= cellJ + 1; j++) {
+//             if (j < 0 || j > gBoard[0].length - 1) continue
+//             if (i === cellI && j === cellJ) continue
+//             if (gBoard[i][j] === '0') {
+//                 elTdCell.style.backgroundColor = 'brown';
+//                 elSpanCell.classList.add('zero');
+//                 elSpanCell.classList.add('hiddenSymbol');
+//                 gBoard[i][j].isShown = false;
+//             }
+//         }
+//     }
+// }
 
 
 function getCellCoord(strCellId) {

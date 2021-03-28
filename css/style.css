@@ -65,3 +65,7 @@ button {
   font-size: 24px;
   padding: 10px
 }
+
+.zero{
+  background-color: gray;
+}

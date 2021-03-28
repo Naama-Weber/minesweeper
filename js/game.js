@@ -21,7 +21,6 @@ var gGame = {
     markedCount: 0,
     negsCount: 0,
     lives: 2
-    // secsPassed: 0
 }
 var gTimer;
 var gBoard;
@@ -41,7 +40,7 @@ function initGame() {
     elLives.innerText = gGame.lives
     resetTimer()
 
-    if (fitstI !== null && fitstJ !== null){
+    if (fitstI !== null && fitstJ !== null) {
         cellClicked(fitstI, fitstJ)
         fitstI = null;
         fitstJ = null;
@@ -53,8 +52,8 @@ function initGame() {
 function changeLevel(level) {
     gLevel.SIZE = level;
     if (level === 4) gLevel.MINES = 2;
-    if (level === 8) gLevel.MINES = 16;
-    if (level === 12) gLevel.MINES = 36;
+    if (level === 8) gLevel.MINES = 8;
+    if (level === 12) gLevel.MINES = 18;
     initGame(level)
 }
 
@@ -102,7 +101,7 @@ function renderBoard(board) {
 }
 
 function cellRightClick(event, i, j) {
-    event.preventDefault(); // stopps annoying popup when clicking right 
+    event.preventDefault(); // stops annoying popup when clicking right 
     if (gBoard[i][j].isShown) {
         return
     }
@@ -140,8 +139,8 @@ function setMinesNegsCount(board, rowIdx, colIdx) {
     } return minesAroundCount
 }
 
-function cellClicked( i, j) {
-    if (gGame.lives === 0){
+function cellClicked(i, j) {
+    if (gGame.lives === 0) {
         return
     }
     if (isFirstClick && gBoard[i][j].isMine) {
@@ -157,12 +156,11 @@ function cellClicked( i, j) {
         return
     }
 
-    if(!gBoard[i][j].isMine && !gBoard[i][j].isShown ){
+    if (!gBoard[i][j].isMine && !gBoard[i][j].isShown) {
         gGame.negsCount++
     }
 
-    var elSpanCell = document.getElementById(`span-cell-${i}-${j}`);
-    elSpanCell.classList.remove('hiddenSymbol');
+
     if (gBoard[i][j].isMine) {
         gGame.lives--
         console.log('gGame.lives ', gGame.lives)
@@ -171,19 +169,70 @@ function cellClicked( i, j) {
     }
     var totalNegsCount = (gLevel.SIZE ** 2) - gLevel.MINES;
     console.log('negsCount ', totalNegsCount)
-    if (totalNegsCount === gGame.negsCount){
+    if (totalNegsCount === gGame.negsCount) {
         isVictory();
     }
+
     gBoard[i][j].isShown = true;
+    var elSpanCell = document.getElementById(`span-cell-${i}-${j}`);
+    var elTdCell = document.getElementById(`cell-${i}-${j}`);
+    elSpanCell.classList.remove('hiddenSymbol');
+    // zeros
+    if (elSpanCell.innerText === '0') {
+        // elTdCell.classList.add('zero'); // did't change the bgc to brown
+        elTdCell.style.backgroundColor = 'gray';
+        elSpanCell.classList.add('zero');
+        elSpanCell.classList.add('hiddenSymbol');
+        gBoard[i][j].isShown = false;
+        
+        // revealZeros(i, j, gBoard) 
+    }
+    
+    
     if (!gGame.isOn) {
         gGame.isOn = true
         setTimer()
     }
-    
+
+
     if (gGame.lives === 0) {
         checkGameOver();
     }
 }
+
+
+function revealZeros(cellI, cellJ, mat) {
+    for (var i = cellI - 1; i <= cellI + 1; i++) {
+        if (i < 0 || i >= mat.length) continue;
+        for (var j = cellJ - 1; j <= cellJ + 1; j++) {
+            // debugger
+            if (i === cellI && j === cellJ) continue;
+            if (j < 0 || j >= mat[i].length) continue;
+            var elCell = document.getElementById(`span-cell-${i}-${j}`);
+            console.log('el cell: ', elCell)
+            if (elCell.innerText === '0') {
+                console.log('inner text is 0')
+                mat[i][j].isShown = false;
+                // var elSpanCell = document.getElementById(`span-cell-${i}-${j}`);
+                var elTdCell = document.getElementById(`cell-${i}-${j}`);
+                // elSpanCell.classList.remove('hiddenSymbol');
+                elTdCell.style.backgroundColor = 'gray';
+                // elSpanCell.classList.add('zero');
+                // elSpanCell.classList.add('hiddenSymbol');
+                elCell.classList.remove('hidenSymbol');
+                elCell.classList.add('zero');
+                revealZeros();
+            } else {
+                mat[i][j].isShown = true
+                elCell.classList.remove('hiddenSymbol');
+            }
+        }
+    }
+}
+
+
+
+
 
 
 function putRandMine(board) {
